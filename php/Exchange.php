@@ -115,6 +115,7 @@ class Exchange {
         'coinone',
         'coinspot',
         'crex24',
+        'cryptocom',
         'currencycom',
         'delta',
         'deribit',
