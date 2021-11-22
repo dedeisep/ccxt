@@ -416,6 +416,19 @@ module.exports = class cryptocom extends Exchange {
             'instrument_name': market['id'],
             'timeframe': this.timeframes[timeframe],
         };
+        const duration = this.parseTimeframe (timeframe) * 1000;
+        if (since !== undefined) {
+            if (limit === undefined) {
+                // For each query, the system would return at most 1000 pieces of data.
+                // To obtain more data, please page the data by time.
+                limit = this.safeInteger (this.options, 'fetchOHLCVLimit', 1000);
+            }
+            request['end_time'] = this.sum (since, limit * duration);
+            request['depth'] = limit;
+        } else if(limit !== undefined) {
+            request['end_time'] = this.milliseconds (); // required param
+            request['limit'] = limit;
+        }
         const response = await this.publicGetPublicGetCandlestick (this.extend (request, params));
         // {
         //     "code":0,
