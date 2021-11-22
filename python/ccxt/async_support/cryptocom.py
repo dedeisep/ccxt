@@ -445,7 +445,7 @@ class cryptocom(Exchange):
         request = {
             'instrument_name': self.market_id(symbol),
         }
-        if limit:
+        if limit is not None:
             request['depth'] = limit
         response = await self.publicGetPublicGetBook(self.extend(request, params))
         # {
@@ -457,8 +457,9 @@ class cryptocom(Exchange):
         #       "t":1591704180270
         #     }
         # }
-        orderBook = self.safe_value(response, 'result')
-        return self.parse_order_book(orderBook, symbol)
+        result = self.safe_value(response, 'result')
+        data = self.safe_value(result, 'data', [])[0]
+        return self.parse_order_book(data, symbol, self.safe_integer(data, 't'))
 
     async def fetch_balance(self, params={}):
         await self.load_markets()

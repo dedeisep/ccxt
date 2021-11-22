@@ -454,7 +454,7 @@ module.exports = class cryptocom extends Exchange {
         const request = {
             'instrument_name': this.marketId (symbol),
         };
-        if (limit) {
+        if (limit !== undefined) {
             request['depth'] = limit;
         }
         const response = await this.publicGetPublicGetBook (this.extend (request, params));
@@ -467,8 +467,9 @@ module.exports = class cryptocom extends Exchange {
         //       "t":1591704180270
         //     }
         // }
-        const orderBook = this.safeValue (response, 'result');
-        return this.parseOrderBook (orderBook, symbol);
+        const result = this.safeValue (response, 'result');
+        const data = this.safeValue (result, 'data', [])[0];
+        return this.parseOrderBook (data, symbol, this.safeInteger (data, 't'));
     }
 
     async fetchBalance (params = {}) {

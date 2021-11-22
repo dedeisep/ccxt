@@ -459,7 +459,7 @@ class cryptocom extends Exchange {
         $request = array(
             'instrument_name' => $this->market_id($symbol),
         );
-        if ($limit) {
+        if ($limit !== null) {
             $request['depth'] = $limit;
         }
         $response = $this->publicGetPublicGetBook (array_merge($request, $params));
@@ -472,8 +472,9 @@ class cryptocom extends Exchange {
         //       "t":1591704180270
         //     }
         // }
-        $orderBook = $this->safe_value($response, 'result');
-        return $this->parse_order_book($orderBook, $symbol);
+        $result = $this->safe_value($response, 'result');
+        $data = $this->safe_value($result, 'data', array())[0];
+        return $this->parse_order_book($data, $symbol, $this->safe_integer($data, 't'));
     }
 
     public function fetch_balance($params = array ()) {
