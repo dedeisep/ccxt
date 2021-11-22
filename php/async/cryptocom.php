@@ -66,9 +66,9 @@ class cryptocom extends Exchange {
                 '4h' => '4h',
                 '6h' => '6h',
                 '12h' => '12h',
-                '1d' => '1d',
-                '1w' => '7d',
-                '2w' => '14d',
+                '1d' => '1D',
+                '1w' => '7D',
+                '2w' => '14D',
                 '1M' => '1M',
             ),
             'urls' => array(
@@ -421,6 +421,19 @@ class cryptocom extends Exchange {
             'instrument_name' => $market['id'],
             'timeframe' => $this->timeframes[$timeframe],
         );
+        $duration = $this->parse_timeframe($timeframe) * 1000;
+        if ($since !== null) {
+            if ($limit === null) {
+                // For each query, the system would return at most 1000 pieces of $data->
+                // To obtain more $data, please page the $data by time.
+                $limit = $this->safe_integer($this->options, 'fetchOHLCVLimit', 1000);
+            }
+            $request['end_time'] = $this->sum($since, $limit * $duration);
+            $request['depth'] = $limit;
+        } else if ($limit !== null) {
+            $request['end_time'] = $this->milliseconds(); // required param
+            $request['depth'] = $limit;
+        }
         $response = yield $this->publicGetPublicGetCandlestick (array_merge($request, $params));
         // {
         //     "code":0,

@@ -72,9 +72,9 @@ class cryptocom(Exchange):
                 '4h': '4h',
                 '6h': '6h',
                 '12h': '12h',
-                '1d': '1d',
-                '1w': '7d',
-                '2w': '14d',
+                '1d': '1D',
+                '1w': '7D',
+                '2w': '14D',
                 '1M': '1M',
             },
             'urls': {
@@ -410,6 +410,17 @@ class cryptocom(Exchange):
             'instrument_name': market['id'],
             'timeframe': self.timeframes[timeframe],
         }
+        duration = self.parse_timeframe(timeframe) * 1000
+        if since is not None:
+            if limit is None:
+                # For each query, the system would return at most 1000 pieces of data.
+                # To obtain more data, please page the data by time.
+                limit = self.safe_integer(self.options, 'fetchOHLCVLimit', 1000)
+            request['end_time'] = self.sum(since, limit * duration)
+            request['depth'] = limit
+        elif limit is not None:
+            request['end_time'] = self.milliseconds()  # required param
+            request['depth'] = limit
         response = await self.publicGetPublicGetCandlestick(self.extend(request, params))
         # {
         #     "code":0,

@@ -425,9 +425,9 @@ module.exports = class cryptocom extends Exchange {
             }
             request['end_time'] = this.sum (since, limit * duration);
             request['depth'] = limit;
-        } else if(limit !== undefined) {
+        } else if (limit !== undefined) {
             request['end_time'] = this.milliseconds (); // required param
-            request['limit'] = limit;
+            request['depth'] = limit;
         }
         const response = await this.publicGetPublicGetCandlestick (this.extend (request, params));
         // {
